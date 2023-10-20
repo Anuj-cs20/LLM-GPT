@@ -8,7 +8,7 @@ LLM-GPT in LLM powered by GPT-4 which can leverage crypto transactions to genera
 #### 2. Generate insights of previous transactions
 #### 3. Current status of block chain transactions
 #### 4. Generate customized future transactions
-
+#### 5. Track your transactions and Coins
 
 
 
