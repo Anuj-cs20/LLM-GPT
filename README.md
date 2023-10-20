@@ -7,7 +7,7 @@ LLM-GPT in LLM powered by GPT-4 which can leverage crypto transactions to genera
 #### 1. Generate a transaction in block chain
 #### 2. Generate insights of previous transactions
 #### 3. Current status of block chain transactions
-#### 4. Generate customized future transaction with difference
+#### 4. Generate customized future transactions
 
 
 
