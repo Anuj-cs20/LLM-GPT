@@ -55,9 +55,6 @@ function App() {
   const [polygonBalance, setPolygonBalance] = useState(0);
   const [avalancheBalance, setAvalancheBalance] = useState(0);
   const [account, setAccount] = useState("Connect Wallet");
-  const [step1, setStep1] = useState("");
-  const [step2, setStep2] = useState("");
-  const [step3, setStep3] = useState("");
   const erc20_abi = [
     {
       inputs: [
@@ -941,6 +938,8 @@ function App() {
           const [fromAddress, fromChainID, toAddress, toChainID] = parts;
           setFromAddress(fromAddress);
           setToAddress(toAddress);
+
+          // Quote
           const params = {
             fromTokenAddress: from,
             toTokenAddress: to,
@@ -1039,12 +1038,6 @@ function App() {
     }
   }
 
-  const [inputObjective, setInputValue] = useState("");
-
-  const handleInputChange = (event) => {
-    setInputValue(event.target.value);
-  };
-
   const performGPTAction = async (Objective) => {
     let actionCommand = await askGPT(Objective);
     console.log("GPT's response: ", actionCommand);
@@ -1055,7 +1048,7 @@ function App() {
     <div>
       <center>
         <div class="navbar">
-          <h1>Voyager Demo Dapp🚀</h1>
+          <h1>Talk2Vault</h1>
           <button
             class="button-52"
             onClick={async () => {
@@ -1097,6 +1090,7 @@ function App() {
                   setPolygonBalance(
                     ethers.utils.formatEther(balance) * Math.pow(10, 6)
                   );
+
                   const contract2 = new ethers.Contract(
                     to,
                     erc20_abi,
@@ -1120,8 +1114,6 @@ function App() {
           </button>
         </div>
         <br></br>
-        <br></br>
-        <br></br>
         <h5>Transfer UDST from Polygon Mumbai to Avalanche Fuji</h5>
         <br></br>
         <div>
@@ -1130,156 +1122,8 @@ function App() {
         </div>
 
         <br></br>
-        <input
-          placeholder="Enter Amount"
-          onChange={(e) => {
-            setAmount(e.target.value * Math.pow(10, 12));
-          }}
-        ></input>
-        <br></br>
         <GPTInput onAskGPT={performGPTAction} />
         <br></br>
-
-        {/* <textarea
-          type="text"
-          value={inputObjective}
-          onChange={handleInputChange}
-          id="inputField"
-          placeholder="Enter some text"
-        ></textarea>
-        <button
-          id="actionButton"
-          onClick={() => {
-            performGPTAction(inputObjective);
-          }}
-        >
-          Ask GPT
-        </button> */}
-        <h2>Steps</h2>
-        <br></br>
-        {/* {amount} */}
-
-        <button
-          class="button-51"
-          onClick={async () => {
-            const params = {
-              fromTokenAddress: from,
-              toTokenAddress: to,
-              amount: amount,
-              fromTokenChainId: "80001",
-              toTokenChainId: "43113", // Fuji
-
-              widgetId: 0, // get your unique wdiget id by contacting us on Telegram
-            };
-
-            console.log(params);
-
-            const quoteData = await getQuote(params);
-            setQuoteData(quoteData);
-            setStep1("✅");
-            alert(quoteData.allowanceTo);
-
-            console.log(quoteData);
-          }}
-        >
-          Step 1: Get Quote {step1}
-        </button>
-
-        <br></br>
-        <br></br>
-        <button
-          class="button-51"
-          onClick={async () => {
-            // setting up a signer
-            // const provider = new ethers.providers.JsonRpcProvider("https://rpc.ankr.com/polygon_mumbai", 80001);
-            // // use provider.getSigner() method to get a signer if you're using this for a UI
-
-            // const wallet = new ethers.Wallet("7de83cb8af577175dd83cfcaa59d8803189c0f95a0f7b8ba239bd7b641de3761", provider)
-
-            // }
-
-            // ❌ Check if Meta Mask Extension exists
-            if (window.ethereum) {
-              console.log("detected");
-
-              try {
-                const accounts = await window.ethereum.request({
-                  method: "eth_requestAccounts",
-                });
-
-                console.log(accounts[0]);
-                const provider = new ethers.providers.Web3Provider(
-                  window.ethereum
-                );
-                const signer = provider.getSigner();
-
-                await checkAndSetAllowance(
-                  signer,
-                  from, // fromTokenAddress (USDT on Mumbai)
-                  quoteData.allowanceTo, // quote.allowanceTo in getQuote(params) response from step 1
-                  ethers.constants.MaxUint256 // amount to approve (infinite approval)
-                );
-                setStep2("✅");
-              } catch (err) {
-                console.log(err);
-              }
-            }
-          }}
-        >
-          Step 2: Check Allowance {step2}
-        </button>
-        <br></br>
-        <br></br>
-
-        <button
-          class="button-51"
-          onClick={async () => {
-            if (window.ethereum) {
-              console.log("detected");
-
-              try {
-                const accounts = await window.ethereum.request({
-                  method: "eth_requestAccounts",
-                });
-
-                console.log(accounts[0]);
-                const provider = new ethers.providers.Web3Provider(
-                  window.ethereum
-                );
-                const signer = provider.getSigner();
-
-                const txResponse = await getTransaction(
-                  {
-                    fromTokenAddress: from,
-                    toTokenAddress: to,
-                    fromTokenChainId: "80001",
-                    toTokenChainId: "43113", // Fuji
-
-                    widgetId: 0, // get your unique wdiget id by contacting us on Telegram
-                  },
-                  quoteData
-                ); // params have been defined in step 1 and quoteData has also been fetched in step 1
-
-                // sending the transaction using the data given by the pathfinder
-                const tx = await signer.sendTransaction(
-                  txResponse.txn.execution
-                );
-                try {
-                  await tx.wait();
-                  console.log(`Transaction mined successfully: ${tx.hash}`);
-                  alert(`Transaction mined successfully: ${tx.hash}`);
-                  setStep3("✅");
-                } catch (error) {
-                  console.log(`Transaction failed with error: ${error}`);
-                }
-              } catch (err) {
-                console.log(err);
-              }
-            }
-          }}
-        >
-          Step 3: Execute {step3}
-        </button>
       </center>
     </div>
   );
