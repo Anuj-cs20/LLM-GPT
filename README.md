@@ -1,7 +1,7 @@
 # LLM-GPT
 
 ### Introduction
-LLM-GPT in LLM powered by GPT-4 which can leverage crypto transactions to generate a transaction in block chain.
+LLM-GPT is LLM powered by GPT-4 which can leverage crypto transactions to generate a transaction in block chain.
 
 ### Features
 #### 1. Generate a transaction in block chain using text and voice
