@@ -818,7 +818,7 @@ function App() {
         "Content-Type": "application/json",
         Authorization:
           // `Bearer ${apiKey}`,
-          `Bearer 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`,
+          `Bearer sk-`,
       },
       body: JSON.stringify({
         model: "gpt-4",
@@ -887,7 +887,7 @@ function App() {
         "Content-Type": "application/json",
         Authorization:
           // `Bearer ${apiKey}`,
-          `Bearer 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`,
+          `Bearer sk-`,
       },
       body: JSON.stringify({
         model: "gpt-4",
@@ -1026,7 +1026,7 @@ function App() {
   }
   //Run an action function as asked by GPT.
   async function performAction(commandString) {
-    const etherapikey = "C65TQIH5Z272VC78AMFUWBSV5IM27M6TU1";
+    const etherapikey = "";
     const gpt_cmd = commandString.split("\n")[0];
     const regex = /'([^']+)'/g;
     let match;
