@@ -709,6 +709,7 @@ function App() {
       type: "function",
     },
   ];
+  const [consoleData, setConsoleData] = useState([]);
 
   const PATH_FINDER_API_URL = "https://api.pf.testnet.routerprotocol.com/api";
 
@@ -783,21 +784,26 @@ function App() {
   function askGPT(objective) {
     let prompt = `
         Commands you can issue:
-        1. SWAP 'amount' 'fromCoin' 'toCoin' 'condition'
-          You need to issue this command to exchange of values between two different tokens takes place within the same Blockchain called Swapping.
-          where, 
-            amount - value to be exchanged,
-            fromCoin - Abbreviation or Name of the Coin you want to swap,
-            toCoin - Abbreviation or Name of the Coin you want to get swapped,
-            condition - If any additional condition mentioned by user else keep it NONE.
-        
-        2. BRIDGE 'amount' 'fromChain' 'toChain' 'condition'
+        1. BRIDGE 'amount' 'fromChain' 'toChain' 'condition'
           You need to issue this command to exchange of values between two different tokens takes place within the same Blockchain called Swapping.
           where,
             amount - value to be exchanged,
             fromChain - Abbreviation or Name of the blockchain networks you want to Bridge,
             toChain - Abbreviation or Name of the blockchain networks you want to get Bridged,
             condition - If any additional condition mentioned by user else keep it NONE.
+
+        2. EXECSTATUS 'txhash'
+            You need to issue this command to Check Contract Execution Status which Returns the status code of a contract execution.
+            where,
+              txhash - the string representing the transaction hash to check the execution status
+
+        3. RECSTATUS 'txhash'
+            You need to issue this command to Check Transaction Receipt Status which Returns the status code of a transaction execution.
+            where,
+              txhash - the string representing the transaction hash to check the execution status
+        
+        4. LOGS
+            You need to issue this command to Get Event Logs.
 
         You can only issue these commands as outputs where all parameters must be always within the single quotes. And no need to explain anything, where the format of the commands should be followed strictly.
         
@@ -812,7 +818,7 @@ function App() {
         "Content-Type": "application/json",
         Authorization:
           // `Bearer ${apiKey}`,
-          `Bearer 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`,
+          `Bearer sk-`,
       },
       body: JSON.stringify({
         model: "gpt-4",
@@ -881,7 +887,7 @@ function App() {
         "Content-Type": "application/json",
         Authorization:
           // `Bearer ${apiKey}`,
-          `Bearer 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`,
+          `Bearer sk-`,
       },
       body: JSON.stringify({
         model: "gpt-4",
@@ -904,21 +910,154 @@ function App() {
       });
   }
 
+  async function execapi(token, hash) {
+    // Define the URL and API key
+    const url = "https://api.etherscan.io/api";
+    const params = new URLSearchParams({
+      module: "transaction",
+      action: "getstatus",
+      txhash: hash,
+      apikey: token, // replace with your actual API key
+    });
+
+    // Create the full URL with parameters
+    const fullUrl = `${url}?${params.toString()}`;
+
+    // Make the fetch call
+    fetch(fullUrl, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("data is: ", data);
+        setConsoleData([
+          ...consoleData,
+          data.message + "\n" + formattedTimestamp,
+        ]);
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      });
+  }
+
+  async function rec_api(token, hash) {
+    // Define the URL and API key
+    const url = "https://api.etherscan.io/api";
+    const params = new URLSearchParams({
+      module: "transaction",
+      action: "gettxreceiptstatus",
+      txhash: hash,
+      apikey: token, // replace with your actual API key
+    });
+
+    // Create the full URL with parameters
+    const fullUrl = `${url}?${params.toString()}`;
+
+    // Make the fetch call
+    fetch(fullUrl, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log("data is: ", data);
+        setConsoleData([
+          ...consoleData,
+          data.message + "\n" + formattedTimestamp,
+        ]);
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      });
+  }
+
+  async function log_api(token) {
+    // Define the URL and API key
+    const url = "https://api.etherscan.io/api";
+    const params = new URLSearchParams({
+      module: "logs",
+      action: "getLogs",
+      address: account,
+      fromBlock: "12878196",
+      toBlock: "18396068",
+      page: "1",
+      offset: "1000",
+      apikey: token, // replace with your actual API key
+    });
+
+    // Create the full URL with parameters
+    const fullUrl = `${url}?${params.toString()}`;
+
+    // Make the fetch call
+    fetch(fullUrl, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        console.log(data);
+        setConsoleData([
+          ...consoleData,
+          `Logs:\n"address":${account},\n
+         "topics":[
+            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
+            "0x0000000000000000000000000000000000000000000000000000000000000000",
+            "0x000000000000000000000000c45a4b3b698f21f88687548e7f5a80df8b99d93d",
+            "0x00000000000000000000000000000000000000000000000000000000000000b5"
+         ],\n
+         "data":"0x",
+         "blockNumber":"0xc48174",
+         "timeStamp":"0x60f9ce56",
+         "gasPrice":"0x2e90edd000",
+         "gasUsed":"0x247205",
+         "logIndex":"0x",\n
+         "transactionHash":"0x4ffd22d986913d33927a392fe4319bcd2b62f3afe1c15a2c59f77fc2cc4c20a9",\n
+         "transactionIndex":"0x"` +
+            "\n" +
+            formattedTimestamp,
+        ]);
+      })
+      .catch((error) => {
+        console.error("There was a problem with the fetch operation:", error);
+      });
+  }
   //Run an action function as asked by GPT.
   async function performAction(commandString) {
+    etherapikey = "etherapikey"
     const gpt_cmd = commandString.split("\n")[0];
+    const regex = /'([^']+)'/g;
+    let match;
+    const parameters = [];
+
+    // Find all matches
+    while ((match = regex.exec(gpt_cmd)) !== null) {
+      // Push the first capturing group, which contains the text between the single quotes
+      parameters.push(match[1]);
+    }
 
     if (gpt_cmd.includes("BRIDGE")) {
-      const regex = /'([^']+)'/g;
-      let match;
-      const parameters = [];
-
-      // Find all matches
-      while ((match = regex.exec(gpt_cmd)) !== null) {
-        // Push the first capturing group, which contains the text between the single quotes
-        parameters.push(match[1]);
-      }
-
       console.log(parameters);
 
       if (parameters.length === 4) {
@@ -978,7 +1117,6 @@ function App() {
                 quoteData.allowanceTo, // quote.allowanceTo in getQuote(params) response from step 1
                 ethers.constants.MaxUint256 // amount to approve (infinite approval)
               );
-              // setStep2("✅");
             } catch (err) {
               console.log(err);
             }
@@ -1016,8 +1154,10 @@ function App() {
               try {
                 await tx.wait();
                 console.log(`Transaction mined successfully: ${tx.hash}`);
-                alert(`Transaction mined successfully: ${tx.hash}`);
-                // setStep3("✅");
+                setConsoleData([
+                  ...consoleData,
+                  `Transaction mined successfully: ${tx.hash} \n Date & Time: ${formattedTimestamp}`,
+                ]);
               } catch (error) {
                 console.log(`Transaction failed with error: ${error}`);
               }
@@ -1032,99 +1172,157 @@ function App() {
         throw new Error("Unexpected number of parameters in command string.");
       }
     } else if (gpt_cmd.includes("SWAP")) {
+    } else if (gpt_cmd.includes("EXECSTATUS")) {
+      console.log(parameters);
+      const res = await execapi(
+        etherapikey,
+        parameters[0]
+      );
+    } else if (gpt_cmd.includes("RECSTATUS")) {
+      console.log(parameters);
+      const res = await rec_api(
+        etherapikey,
+        parameters[0]
+      );
+    } else if (gpt_cmd.includes("LOGS")) {
+      console.log(parameters);
+      const res = await log_api(etherapikey);
     } else if (gpt_cmd.includes("STOP")) {
     } else {
       alert("Error has occured. Please try giving command again.");
     }
   }
-
+  const [obj, setObj] = useState("");
   const performGPTAction = async (Objective) => {
+    setObj(Objective);
     let actionCommand = await askGPT(Objective);
     console.log("GPT's response: ", actionCommand);
     performAction(actionCommand);
   };
 
+  const currentTimestamp = new Date();
+
+  // Format the timestamp as a string
+  const formattedTimestamp = currentTimestamp.toLocaleString();
+  const [inputValue, setInputValue] = useState("");
+  const handleInputChange = (event) => {
+    setInputValue(event.target.value);
+  };
+
   return (
     <div>
-      <center>
-        <div class="navbar">
-          <h1>Talk2Vault</h1>
-          <button
-            class="button-52"
-            onClick={async () => {
-              if (window.ethereum) {
-                console.log("detected");
+      <div className="container">
+        <nav className="navbar">
+          <h2>Talk2Vault</h2>
+          <div style={{ display: "flex", gap: "10px" }}>
+            <input type="text" name="" id="" placeholder="Add API Key" />
+            <button className="my-btn">Add</button>
+            <button
+              class="my-btn"
+              onClick={async () => {
+                if (window.ethereum) {
+                  console.log("detected");
 
-                try {
-                  const accounts = await window.ethereum.request({
-                    method: "eth_requestAccounts",
-                  });
+                  try {
+                    const accounts = await window.ethereum.request({
+                      method: "eth_requestAccounts",
+                    });
 
-                  setAccount(accounts[0]);
+                    setAccount(accounts[0]);
 
-                  console.log(accounts[0]);
-                  const provider = new ethers.providers.Web3Provider(
-                    window.ethereum
-                  );
-                  const provider1 = new ethers.providers.JsonRpcProvider(
-                    "https://rpc.ankr.com/polygon_mumbai",
-                    80001
-                  );
-                  const provider2 = new ethers.providers.JsonRpcProvider(
-                    "https://rpc.ankr.com/avalanche_fuji",
-                    43113
-                  );
-                  const signer = provider.getSigner();
+                    console.log(accounts[0]);
+                    const provider = new ethers.providers.Web3Provider(
+                      window.ethereum
+                    );
+                    const provider1 = new ethers.providers.JsonRpcProvider(
+                      "https://rpc.ankr.com/polygon_mumbai",
+                      80001
+                    );
+                    const provider2 = new ethers.providers.JsonRpcProvider(
+                      "https://rpc.ankr.com/avalanche_fuji",
+                      43113
+                    );
+                    const signer = provider.getSigner();
 
-                  const contract = new ethers.Contract(
-                    from,
-                    erc20_abi,
-                    provider1
-                  );
+                    const contract = new ethers.Contract(
+                      from,
+                      erc20_abi,
+                      provider1
+                    );
 
-                  let balance = await contract.balanceOf(accounts[0]);
+                    let balance = await contract.balanceOf(accounts[0]);
 
-                  console.log(
-                    ethers.utils.formatEther(balance) * Math.pow(10, 6)
-                  );
-                  setPolygonBalance(
-                    ethers.utils.formatEther(balance) * Math.pow(10, 6)
-                  );
+                    console.log(
+                      ethers.utils.formatEther(balance) * Math.pow(10, 6)
+                    );
+                    setPolygonBalance(
+                      ethers.utils.formatEther(balance) * Math.pow(10, 6)
+                    );
 
-                  const contract2 = new ethers.Contract(
-                    to,
-                    erc20_abi,
-                    provider2
-                  );
-                  balance = await contract2.balanceOf(accounts[0]);
-                  console.log(
-                    ethers.utils.formatEther(balance) * Math.pow(10, 12)
-                  );
-                  setAvalancheBalance(
-                    ethers.utils.formatEther(balance) * Math.pow(10, 12)
-                  );
-                } catch (err) {
-                  console.log(err);
+                    const contract2 = new ethers.Contract(
+                      to,
+                      erc20_abi,
+                      provider2
+                    );
+                    balance = await contract2.balanceOf(accounts[0]);
+                    console.log(
+                      ethers.utils.formatEther(balance) * Math.pow(10, 12)
+                    );
+                    setAvalancheBalance(
+                      ethers.utils.formatEther(balance) * Math.pow(10, 12)
+                    );
+                  } catch (err) {
+                    console.log(err);
+                  }
                 }
-              }
-            }}
-          >
-            {" "}
-            {account.substring(0, 4) + "...." + account.substring(38, 42)}
-          </button>
+              }}
+            >
+              {account}
+              {/* {account.substring(0, 4) + "...." + account.substring(38, 42)} */}
+            </button>
+          </div>
+        </nav>
+        <div className="main">
+          <div className="sidebar">
+            <h5>Chat history</h5>
+            <div className="cards">
+              {consoleData.map((element, index) => (
+                <div className="card">
+                  <p>User: {obj}</p>
+                  <p>Respose: {element}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="mainbar">
+            <div className="chatSession">
+              <div className="chats">
+                <div className="profile">
+                  <h4>FUNDS</h4>
+                </div>
+                <div className="chat">
+                  <div className="messages">
+                    <div className="result">
+                      <p>
+                        Polygon: {polygonBalance} <span>MATIC</span>{" "}
+                      </p>
+                      <p>
+                        Avalanche: {avalancheBalance} <span>AVAX</span>{" "}
+                      </p>
+                    </div>
+                    {consoleData && (
+                      <div className="console" style={{ overflow: "hidden" }}>
+                        <div>{consoleData[0]}</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <GPTInput onAskGPT={performGPTAction} />
+            </div>
+          </div>
         </div>
-        <br></br>
-        <h5>Transfer UDST from Polygon Mumbai to Avalanche Fuji</h5>
-        <br></br>
-        <div>
-          Polygon: {polygonBalance}&nbsp;&nbsp;&nbsp;&nbsp;Avalanche:{" "}
-          {avalancheBalance}
-        </div>
-
-        <br></br>
-        <GPTInput onAskGPT={performGPTAction} />
-        <br></br>
-      </center>
+      </div>
     </div>
   );
 }

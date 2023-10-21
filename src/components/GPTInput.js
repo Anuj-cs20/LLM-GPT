@@ -1,4 +1,37 @@
+// import React, { useState } from "react";
+// import "../App.css";
+
+// function GPTInput({ onAskGPT }) {
+//   const [inputObjective, setInputValue] = useState("");
+
+//   const handleInputChange = (event) => {
+//     setInputValue(event.target.value);
+//   };
+
+//   return (
+//     <div>
+//       <input
+//         type="text"
+//         value={inputObjective}
+//         onChange={handleInputChange}
+//         id="inputField"
+//         placeholder="Enter some text"
+//       />
+//       <button
+//         id="actionButton"
+//         onClick={() => {
+//           onAskGPT(inputObjective);
+//         }}
+//       >
+//         &rarr;
+//       </button>
+//     </div>
+//   );
+// }
+
+// export default GPTInput;
 import React, { useState } from "react";
+import "../App.css";
 
 function GPTInput({ onAskGPT }) {
   const [inputObjective, setInputValue] = useState("");
@@ -8,21 +41,21 @@ function GPTInput({ onAskGPT }) {
   };
 
   return (
-    <div>
-      <textarea
+    <div className="inputGPT">
+      <input
         type="text"
         value={inputObjective}
         onChange={handleInputChange}
         id="inputField"
-        placeholder="Enter some text"
-      ></textarea>
+        placeholder="Enter some text..."
+      />
       <button
         id="actionButton"
         onClick={() => {
           onAskGPT(inputObjective);
         }}
       >
-        Ask GPT
+        &rarr;
       </button>
     </div>
   );
