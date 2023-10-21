@@ -818,7 +818,7 @@ function App() {
         "Content-Type": "application/json",
         Authorization:
           // `Bearer ${apiKey}`,
-          `Bearer sk-`,
+          `Bearer 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`,
       },
       body: JSON.stringify({
         model: "gpt-4",
@@ -887,7 +887,7 @@ function App() {
         "Content-Type": "application/json",
         Authorization:
           // `Bearer ${apiKey}`,
-          `Bearer sk-`,
+          `Bearer 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`,
       },
       body: JSON.stringify({
         model: "gpt-4",
@@ -1018,26 +1018,7 @@ function App() {
       })
       .then((data) => {
         console.log(data);
-        setConsoleData([
-          ...consoleData,
-          `Logs:\n"address":${account},\n
-         "topics":[
-            "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef",
-            "0x0000000000000000000000000000000000000000000000000000000000000000",
-            "0x000000000000000000000000c45a4b3b698f21f88687548e7f5a80df8b99d93d",
-            "0x00000000000000000000000000000000000000000000000000000000000000b5"
-         ],\n
-         "data":"0x",
-         "blockNumber":"0xc48174",
-         "timeStamp":"0x60f9ce56",
-         "gasPrice":"0x2e90edd000",
-         "gasUsed":"0x247205",
-         "logIndex":"0x",\n
-         "transactionHash":"0x4ffd22d986913d33927a392fe4319bcd2b62f3afe1c15a2c59f77fc2cc4c20a9",\n
-         "transactionIndex":"0x"` +
-            "\n" +
-            formattedTimestamp,
-        ]);
+        setConsoleData([...consoleData, data.message + formattedTimestamp]);
       })
       .catch((error) => {
         console.error("There was a problem with the fetch operation:", error);
@@ -1045,7 +1026,7 @@ function App() {
   }
   //Run an action function as asked by GPT.
   async function performAction(commandString) {
-    etherapikey = "etherapikey"
+    const etherapikey = "C65TQIH5Z272VC78AMFUWBSV5IM27M6TU1";
     const gpt_cmd = commandString.split("\n")[0];
     const regex = /'([^']+)'/g;
     let match;
@@ -1174,16 +1155,10 @@ function App() {
     } else if (gpt_cmd.includes("SWAP")) {
     } else if (gpt_cmd.includes("EXECSTATUS")) {
       console.log(parameters);
-      const res = await execapi(
-        etherapikey,
-        parameters[0]
-      );
+      const res = await execapi(etherapikey, parameters[0]);
     } else if (gpt_cmd.includes("RECSTATUS")) {
       console.log(parameters);
-      const res = await rec_api(
-        etherapikey,
-        parameters[0]
-      );
+      const res = await rec_api(etherapikey, parameters[0]);
     } else if (gpt_cmd.includes("LOGS")) {
       console.log(parameters);
       const res = await log_api(etherapikey);
