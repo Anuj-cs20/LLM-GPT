@@ -952,7 +952,7 @@ function App() {
 
           const quoteData = await getQuote(params);
           setQuoteData(quoteData);
-          setStep1("✅");
+          // setStep1("✅");
           alert(quoteData.allowanceTo);
 
           console.log(quoteData);
@@ -978,7 +978,7 @@ function App() {
                 quoteData.allowanceTo, // quote.allowanceTo in getQuote(params) response from step 1
                 ethers.constants.MaxUint256 // amount to approve (infinite approval)
               );
-              setStep2("✅");
+              // setStep2("✅");
             } catch (err) {
               console.log(err);
             }
@@ -1017,7 +1017,7 @@ function App() {
                 await tx.wait();
                 console.log(`Transaction mined successfully: ${tx.hash}`);
                 alert(`Transaction mined successfully: ${tx.hash}`);
-                setStep3("✅");
+                // setStep3("✅");
               } catch (error) {
                 console.log(`Transaction failed with error: ${error}`);
               }
